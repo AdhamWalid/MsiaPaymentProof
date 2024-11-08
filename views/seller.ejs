@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Verification</title>
+  <link rel="stylesheet" href="seller.css">
+</head>
+<body>
+
+<div class="scanner-container">
+  <h2>QR Code Scanner</h2>
+  <div id="qr-reader" style="width: 300px;"></div> <!-- Camera view for scanning QR codes -->
+  <div id="qr-result" class="result">Awaiting scan...</div> <!-- Result display -->
+</div>
+
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+<script>
+  // Initialize the QR code reader
+  const qrReader = new Html5Qrcode("qr-reader");
+
+  // Start the QR code scanner
+  function startScanner() {
+    qrReader.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+      },
+      onScanSuccess
+    ).catch(err => console.error(`Error starting QR scanner: ${err}`));
+  }
+
+  // Handle QR code scan success
+  async function onScanSuccess(qrCodeMessage) {
+    // Stop scanning after a successful scan
+    qrReader.stop();
+
+    document.getElementById("qr-result").innerText = "Verifying...";
+    
+    try {
+        
+    const response = await fetch(`/verify-payment/${qrCodeMessage}`);
+      const result = await response.text();
+
+      // Display result message from the server
+      document.getElementById("qr-result").innerHTML = result;
+    } catch (error) {
+      console.error("Error verifying QR code:", error);
+      document.getElementById("qr-result").innerText = "Verification failed. Try again.";
+    }
+  }
+
+  // Start the scanner when the page loads
+  startScanner();
+</script>
+
+</body>
+</html>

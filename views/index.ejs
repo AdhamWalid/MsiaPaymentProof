@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Form</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="form-container">
+  <h2>Payment Form</h2>
+
+  <!-- QR Code Section -->
+  <div class="qr-section">
+    <p>Scan the QR code below to make the payment:</p>
+    <img src="./uploads/OriginalQr.jpg" alt="QR Code for Payment">
+  </div>
+
+  <!-- Amount Section -->
+  <div class="amount">
+    Amount to be Paid: $100
+  </div>
+
+  <form action="/submit-payment" method="POST" enctype="multipart/form-data" id="paymentform">
+    <!-- Student ID -->
+    <div class="form-group">
+      <label for="studentID">Student ID *</label>
+      <input type="text" id="studentID" name="studentID" required>
+      <label for="studentID">Student Name *</label>
+      <input type="text" id="studentName" name="studentName" required>
+    </div>
+
+    <!-- Tier Selection -->
+    <div class="form-group">
+      <label for="tier">Tier *</label>
+      <select id="tier" name="tier" required>
+        <option value="">Select Tier</option>
+        <option value="A">Tier A</option>
+        <option value="B">Tier B</option>
+        <option value="C">Tier C</option>
+      </select>
+    </div>
+
+    <!-- Email Address -->
+    <div class="form-group">
+      <label for="email">Email Address *</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+
+    <!-- Transaction Reference ID -->
+    <div class="form-group">
+      <label for="transactionRefID">Transaction Reference ID *</label>
+      <input type="text" id="transactionRefID" name="transactionRefID" required>
+    </div>
+
+    <!-- File Upload for Receipt -->
+    <div class="form-group">
+      <label for="receipt">Upload Receipt *</label>
+      <input type="file" id="receipt" name="receipt" required>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="submit-btn">Submit Payment</button>
+  </form>
+</div>
+
+</body>
+
+<script>
+document.getElementById('paymentform').addEventListener('submit', async function (event) {
+  event.preventDefault(); // Prevent form from reloading the page
+
+  const formData = new FormData();
+
+  if (!document.getElementById('receipt').files[0]) {
+  alert("Please upload a receipt.");
+  return;
+}
+
+
+  formData.append('studentID', document.getElementById('studentID').value);
+  formData.append('studentName', document.getElementById('studentName').value);
+  formData.append('tier', document.getElementById('tier').value);
+  formData.append('email', document.getElementById('email').value);
+  formData.append('transactionRefID', document.getElementById('transactionRefID').value);
+  formData.append('receipt', document.getElementById('receipt').files[0]);
+
+  try {
+    const response = await fetch('/submit-payment', {
+      method: 'POST',
+      body: formData // Send the form data
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert(result.message); // Show success message
+    } else {
+      alert(result.error); // Show error message
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+
+</script>
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
+</html>
